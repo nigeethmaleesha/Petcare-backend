@@ -74,4 +74,9 @@ public class AdoptionRequestService {
     public void deleteRequest(int id) {
         requestRepository.deleteById(id);
     }
+    // Get adoption requests by shelter ID
+    public List<AdoptionRequest> getRequestsByShelterId(int shelterId) {
+        return requestRepository.findByShelterId(shelterId);
+    }
+
 }

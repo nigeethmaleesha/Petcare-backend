@@ -15,7 +15,8 @@ public class AdoptionRequest {
 
     private int adoption_id;
     private String pet_name;
-    private int shelter_id;
+    @Column(name = "shelter_id")
+    private int shelterId;
 
     private String type_of_home;
 
@@ -42,8 +43,8 @@ public class AdoptionRequest {
     public String getPet_name() { return pet_name; }
     public void setPet_name(String pet_name) { this.pet_name = pet_name; }
 
-    public int getShelter_id() { return shelter_id; }
-    public void setShelter_id(int shelter_id) { this.shelter_id = shelter_id; }
+    public int getShelter_id() { return shelterId; }
+    public void setShelter_id(int shelter_id) { this.shelterId = shelter_id; }
 
     public String getType_of_home() { return type_of_home; }
     public void setType_of_home(String type_of_home) { this.type_of_home = type_of_home; }

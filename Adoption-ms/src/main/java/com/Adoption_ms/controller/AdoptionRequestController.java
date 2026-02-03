@@ -49,5 +49,11 @@ public class AdoptionRequestController {
         service.deleteRequest(id);
         return "Adoption Request Deleted Successfully";
     }
+    // Get adoption requests by shelter ID
+    @GetMapping("/shelter/{shelterId}")
+    public List<AdoptionRequest> getRequestsByShelterId(@PathVariable int shelterId) {
+        return service.getRequestsByShelterId(shelterId);
+    }
+
 
 }
