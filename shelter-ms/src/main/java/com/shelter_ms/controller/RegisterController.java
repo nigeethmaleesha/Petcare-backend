@@ -48,7 +48,7 @@ public class RegisterController {
 
 
 
-            // ✅ Save data to DB
+
             Register reg = new Register();
             reg.setFullName(fullName);
             reg.setEmail(email);
