@@ -1,13 +1,13 @@
-package com.petcare.emergency;
+package com.AI_Assistance_ms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class AiAssistanceMsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(AiAssistanceMsApplication.class, args);
 	}
 
 }
