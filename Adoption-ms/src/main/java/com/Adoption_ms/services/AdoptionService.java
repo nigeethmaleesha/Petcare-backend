@@ -11,4 +11,6 @@ public interface AdoptionService {
     Adoption getAdoptionById(int id);
     Adoption updateAdoption(int id, Adoption adoption);
     void deleteAdoption(int id);
+    List<Adoption> getAdoptionsByShelterId(int shelterId);
+
 }

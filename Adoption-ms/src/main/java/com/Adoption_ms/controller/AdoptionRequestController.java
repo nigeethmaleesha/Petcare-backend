@@ -10,6 +10,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/adoption-requests")
+@CrossOrigin
+
 public class AdoptionRequestController {
 
     @Autowired

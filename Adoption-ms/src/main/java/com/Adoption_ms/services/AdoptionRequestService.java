@@ -37,7 +37,7 @@ public class AdoptionRequestService {
             if (adoptionOpt.isPresent()) {
                 Adoption adoption = adoptionOpt.get();
                 request.setPet_name(adoption.getPet_name());
-                request.setShelter_id(adoption.getShelter_id());
+                request.setShelter_id(adoption.getShelterId());
             } else {
                 throw new RuntimeException("Adoption not found with id " + request.getAdoption_id());
             }
@@ -62,7 +62,7 @@ public class AdoptionRequestService {
                 if (adoptionOpt.isPresent()) {
                     Adoption adoption = adoptionOpt.get();
                     request.setPet_name(adoption.getPet_name());
-                    request.setShelter_id(adoption.getShelter_id());
+                    request.setShelter_id(adoption.getShelterId());
                 }
             }
 
