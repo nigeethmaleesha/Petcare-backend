@@ -5,6 +5,8 @@ import com.shelter_ms.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/shelter/profile")
 @CrossOrigin
@@ -13,10 +15,9 @@ public class ProfileController {
     @Autowired
     private ProfileRepository profileRepo;
 
-    // GET BY EMAIL
     @GetMapping("/email/{email}")
     public Profile getByEmail(@PathVariable String email) {
-        return profileRepo.findByEmail(email);
+        return profileRepo.findByEmail(email).orElse(null);
     }
 
     // UPDATE BY EMAIL
@@ -24,13 +25,21 @@ public class ProfileController {
     public Profile updateByEmail(@PathVariable String email,
                                  @RequestBody Profile updated) {
 
-        Profile profile = profileRepo.findByEmail(email);
+        Profile profile = profileRepo.findByEmail(email).orElse(null);
+
+        if (profile == null) return null;
 
         profile.setAddress(updated.getAddress());
         profile.setProfileImage(updated.getProfileImage());
 
         return profileRepo.save(profile);
     }
+    @GetMapping("/test")
+    public List<Profile> test() {
+        return profileRepo.findAll();
+    }
+
 }
+
 
 
