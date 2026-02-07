@@ -15,6 +15,7 @@ public class AdoptionRequest {
 
     private int adoption_id;
     private String pet_name;
+
     @Column(name = "shelter_id")
     private int shelterId;
 
@@ -27,6 +28,10 @@ public class AdoptionRequest {
     private int hours_alone_per_day;
 
     private String status = "Pending";
+
+    // New fields
+    private String fullname;
+    private String contact_no;
 
     public enum FencedYard { Yes, No }
 
@@ -60,4 +65,10 @@ public class AdoptionRequest {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getFullname() { return fullname; }
+    public void setFullname(String fullname) { this.fullname = fullname; }
+
+    public String getContact_no() { return contact_no; }
+    public void setContact_no(String contact_no) { this.contact_no = contact_no; }
 }

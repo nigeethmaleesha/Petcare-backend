@@ -46,4 +46,9 @@ public class AdoptionServiceImpl implements AdoptionService {
     public void deleteAdoption(int id) {
         repository.deleteById(id);
     }
+    @Override
+    public List<Adoption> getAdoptionsByShelterId(int shelterId) {
+        return repository.findByShelterId(shelterId);
+    }
+
 }
