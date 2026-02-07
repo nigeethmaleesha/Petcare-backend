@@ -11,4 +11,7 @@ public interface RegisterRepository extends JpaRepository<Register, Integer> {
     List<Register> findByStatus(String status);
 
     Optional<Register> findByEmail(String email);
+
+    long countByStatus(String status);
+
 }
