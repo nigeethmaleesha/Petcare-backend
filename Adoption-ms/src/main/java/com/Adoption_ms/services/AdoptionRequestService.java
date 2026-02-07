@@ -31,7 +31,7 @@ public class AdoptionRequestService {
 
     // Create new adoption request
     public AdoptionRequest createRequest(AdoptionRequest request) {
-        // Fetch pet_name and shelter_id from Adoption table if adoption_id is provided
+        // Only fetch adoption if adoption_id exists in DB
         if (request.getAdoption_id() > 0) {
             Optional<Adoption> adoptionOpt = adoptionRepository.findById(request.getAdoption_id());
             if (adoptionOpt.isPresent()) {
@@ -42,20 +42,30 @@ public class AdoptionRequestService {
                 throw new RuntimeException("Adoption not found with id " + request.getAdoption_id());
             }
         }
+
+
+        if (request.getFullname() == null) request.setFullname("");
+        if (request.getContact_no() == null) request.setContact_no("");
+
         return requestRepository.save(request);
     }
+
 
     // Update adoption request
     public AdoptionRequest updateRequest(int id, AdoptionRequest updatedRequest) {
         return requestRepository.findById(id).map(request -> {
-            // Allow updating type_of_home, fenced_yard, activity_level, hours_alone_per_day, status
+            // Update standard fields
             request.setType_of_home(updatedRequest.getType_of_home());
             request.setFenced_yard(updatedRequest.getFenced_yard());
             request.setActivity_level(updatedRequest.getActivity_level());
             request.setHours_alone_per_day(updatedRequest.getHours_alone_per_day());
             request.setStatus(updatedRequest.getStatus());
 
-            // Optional: Allow updating adoption_id (will also update pet_name and shelter_id)
+            // Update fullname and contact_no
+            request.setFullname(updatedRequest.getFullname());
+            request.setContact_no(updatedRequest.getContact_no());
+
+            // Optional: Update adoption_id (updates pet_name and shelter_id)
             if (updatedRequest.getAdoption_id() > 0) {
                 request.setAdoption_id(updatedRequest.getAdoption_id());
                 Optional<Adoption> adoptionOpt = adoptionRepository.findById(updatedRequest.getAdoption_id());
@@ -74,9 +84,9 @@ public class AdoptionRequestService {
     public void deleteRequest(int id) {
         requestRepository.deleteById(id);
     }
+
     // Get adoption requests by shelter ID
     public List<AdoptionRequest> getRequestsByShelterId(int shelterId) {
         return requestRepository.findByShelterId(shelterId);
     }
-
 }

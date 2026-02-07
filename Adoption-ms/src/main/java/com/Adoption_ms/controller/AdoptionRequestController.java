@@ -11,7 +11,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/adoption-requests")
 @CrossOrigin
-
 public class AdoptionRequestController {
 
     @Autowired
@@ -34,15 +33,18 @@ public class AdoptionRequestController {
     // Create new adoption request
     @PostMapping
     public AdoptionRequest createRequest(@RequestBody AdoptionRequest request) {
+        // request JSON can now include fullname and contact_no
         return service.createRequest(request);
     }
 
     // Update adoption request
     @PutMapping("/{id}")
     public AdoptionRequest updateRequest(@PathVariable int id, @RequestBody AdoptionRequest request) {
+        // request JSON can now include fullname and contact_no
         return service.updateRequest(id, request);
     }
 
+    // Delete adoption request
     @DeleteMapping("/{id}")
     public String deleteRequest(@PathVariable int id) {
         AdoptionRequest request = service.getRequestById(id)
@@ -51,11 +53,10 @@ public class AdoptionRequestController {
         service.deleteRequest(id);
         return "Adoption Request Deleted Successfully";
     }
+
     // Get adoption requests by shelter ID
     @GetMapping("/shelter/{shelterId}")
     public List<AdoptionRequest> getRequestsByShelterId(@PathVariable int shelterId) {
         return service.getRequestsByShelterId(shelterId);
     }
-
-
 }
