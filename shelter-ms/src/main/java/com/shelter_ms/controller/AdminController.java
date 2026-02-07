@@ -122,7 +122,7 @@ public class AdminController {
 
         Register reg = registerRepo.findById(id).orElseThrow();
 
-        String baseDir = "C:\\Users\\ADMIN\\Documents\\GitHub\\Petcare-backend\\shelter-ms\\verificationdocu\\";
+        String baseDir = "E:\\Hackathon(Master Blacky)\\backend\\shelter-ms\\verificationdocu\\";
 
         Path filePath = Paths.get(baseDir +
                 reg.getDocumentPath().replace("verificationdocu\\", "")
