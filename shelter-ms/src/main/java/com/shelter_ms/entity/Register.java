@@ -10,7 +10,7 @@ public class Register {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // 🔹 Step 1 fields
+
     @Column(name = "full_name")
     private String fullName;
 
@@ -19,7 +19,7 @@ public class Register {
 
     private String password;
 
-    // 🔹 Step 2 fields
+
     @Column(name = "shelter_name")
     private String shelterName;
 

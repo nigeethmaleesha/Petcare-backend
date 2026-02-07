@@ -16,7 +16,8 @@ public class Adoption {
     private String species;
     private int age;
     private String size;
-    private int shelter_id;
+    @Column(name = "shelter_id")
+    private int shelterId;
     private boolean vaccinated;
     private boolean kid_friendly;
 
@@ -84,13 +85,14 @@ public class Adoption {
         this.size = size;
     }
 
-    public int getShelter_id() {
-        return shelter_id;
+    public int getShelterId() {
+        return shelterId;
     }
 
-    public void setShelter_id(int shelter_id) {
-        this.shelter_id = shelter_id;
+    public void setShelterId(int shelterId) {
+        this.shelterId = shelterId;
     }
+
 
     public boolean isVaccinated() {
         return vaccinated;

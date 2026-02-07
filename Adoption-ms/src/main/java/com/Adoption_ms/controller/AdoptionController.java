@@ -93,7 +93,7 @@ public class AdoptionController {
             existing.setSpecies(adoption.getSpecies());
             existing.setAge(adoption.getAge());
             existing.setSize(adoption.getSize());
-            existing.setShelter_id(adoption.getShelter_id());
+            existing.setShelterId(adoption.getShelterId());
             existing.setVaccinated(adoption.isVaccinated());
             existing.setKid_friendly(adoption.isKid_friendly());
             existing.setMedical_notes(adoption.getMedical_notes());
@@ -130,4 +130,10 @@ public class AdoptionController {
         service.deleteAdoption(id);
         return "Deleted Successfully";
     }
+    // ---------------- Get Adoptions By Shelter ID ----------------
+    @GetMapping("/shelter/{shelterId}")
+    public List<Adoption> getByShelterId(@PathVariable int shelterId) {
+        return service.getAdoptionsByShelterId(shelterId);
+    }
+
 }

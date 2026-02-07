@@ -21,13 +21,13 @@ public class AdminController {
     @Autowired
     private ProfileRepository profileRepo;
 
-    // ✅ Get all pending shelters
+
     @GetMapping("/pending")
     public List<Register> getPendingShelters() {
         return registerRepo.findByStatus("PENDING");
     }
 
-    // ✅ Approve shelter
+
     @PostMapping("/approve/{id}")
     @Transactional
     public String approveShelter(@PathVariable int id) {
@@ -40,7 +40,7 @@ public class AdminController {
         Profile profile = new Profile();
         profile.setRegId(regId);
 
-        // 🔥 use correct getters
+
         profile.setShelterName(reg.getShelterName());
         profile.setLicenseNumber(reg.getLicenseNumber());
         profile.setEmail(reg.getEmail());
@@ -56,7 +56,7 @@ public class AdminController {
         return "Shelter Approved with ID: " + regId;
     }
 
-    // ✅ Reject shelter
+
     @PostMapping("/reject/{id}")
     public String rejectShelter(@PathVariable int id) {
         Register reg = registerRepo.findById(id).orElseThrow();
@@ -65,7 +65,7 @@ public class AdminController {
         return "Shelter Rejected";
     }
 
-    // ✅ Get all shelters
+
     @GetMapping("/all")
     public List<Register> getAllShelters() {
         return registerRepo.findAll();
