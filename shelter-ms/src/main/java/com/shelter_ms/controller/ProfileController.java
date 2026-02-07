@@ -5,8 +5,12 @@ import com.shelter_ms.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.Base64;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shelter/profile")
@@ -24,24 +28,43 @@ public class ProfileController {
     }
 
 
-    // UPDATE BY EMAIL
+    //UPDATE BY EMAIL WITH IMAGE
     @PutMapping("/update/email/{email}")
-    public Profile updateByEmail(@PathVariable String email,
-                                 @RequestBody Profile updated) {
+    public ResponseEntity<?> updateProfile(
+            @PathVariable String email,
+            @RequestParam String streetAddress,
+            @RequestParam String addressLine2,
+            @RequestParam String city,
+            @RequestParam String state,
+            @RequestParam String zipCode,
+            @RequestParam String country,
+            @RequestParam(required = false) MultipartFile profileImage
+    ) throws IOException {
 
-        Profile profile = profileRepo.findByEmail(email).orElse(null);
-        if (profile == null) return null;
+        Optional<Profile> optionalProfile = profileRepo.findByEmail(email);
 
-        profile.setStreetAddress(updated.getStreetAddress());
-        profile.setAddressLine2(updated.getAddressLine2());
-        profile.setCity(updated.getCity());
-        profile.setState(updated.getState());
-        profile.setZipCode(updated.getZipCode());
-        profile.setCountry(updated.getCountry());
-        profile.setProfileImage(updated.getProfileImage());
+        if (optionalProfile.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
-        return profileRepo.save(profile);
+        Profile profile = optionalProfile.get();
+
+        profile.setStreetAddress(streetAddress);
+        profile.setAddressLine2(addressLine2);
+        profile.setCity(city);
+        profile.setState(state);
+        profile.setZipCode(zipCode);
+        profile.setCountry(country);
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            profile.setProfileImage(profileImage.getBytes());
+        }
+
+        profileRepo.save(profile);
+
+        return ResponseEntity.ok("Updated Successfully");
     }
+
 
     @GetMapping("/test")
     public List<Profile> test() {
