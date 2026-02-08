@@ -8,16 +8,14 @@ import java.time.LocalDateTime;
 public class AdoptionRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int request_id;
+    private String request_id; // REQ-001
 
     private LocalDateTime request_date = LocalDateTime.now();
-
-    private int adoption_id;
+    private String adoption_id;
     private String pet_name;
 
     @Column(name = "shelter_id")
-    private int shelterId;
+    private String shelterId;   // REG-001 ✅
 
     private String type_of_home;
 
@@ -26,30 +24,26 @@ public class AdoptionRequest {
 
     private String activity_level;
     private int hours_alone_per_day;
-
     private String status = "Pending";
-
-    // New fields
     private String fullname;
     private String contact_no;
 
     public enum FencedYard { Yes, No }
 
-    // Getters and Setters
-    public int getRequest_id() { return request_id; }
-    public void setRequest_id(int request_id) { this.request_id = request_id; }
+    // Getters & Setters
+    public String getRequest_id() { return request_id; }
+    public void setRequest_id(String request_id) { this.request_id = request_id; }
 
     public LocalDateTime getRequest_date() { return request_date; }
-    public void setRequest_date(LocalDateTime request_date) { this.request_date = request_date; }
 
-    public int getAdoption_id() { return adoption_id; }
-    public void setAdoption_id(int adoption_id) { this.adoption_id = adoption_id; }
+    public String getAdoption_id() { return adoption_id; }
+    public void setAdoption_id(String adoption_id) { this.adoption_id = adoption_id; }
 
     public String getPet_name() { return pet_name; }
     public void setPet_name(String pet_name) { this.pet_name = pet_name; }
 
-    public int getShelter_id() { return shelterId; }
-    public void setShelter_id(int shelter_id) { this.shelterId = shelter_id; }
+    public String getShelterId() { return shelterId; }
+    public void setShelterId(String shelterId) { this.shelterId = shelterId; }
 
     public String getType_of_home() { return type_of_home; }
     public void setType_of_home(String type_of_home) { this.type_of_home = type_of_home; }

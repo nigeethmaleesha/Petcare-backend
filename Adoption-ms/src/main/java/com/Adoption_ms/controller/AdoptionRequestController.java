@@ -2,8 +2,6 @@ package com.Adoption_ms.controller;
 
 import com.Adoption_ms.data.AdoptionRequest;
 import com.Adoption_ms.services.AdoptionRequestService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,50 +11,50 @@ import java.util.List;
 @CrossOrigin
 public class AdoptionRequestController {
 
-    @Autowired
-    private AdoptionRequestService service;
+    private final AdoptionRequestService service;
 
-    // Get all adoption requests
+    public AdoptionRequestController(AdoptionRequestService service) {
+        this.service = service;
+    }
+
     @GetMapping
     public List<AdoptionRequest> getAllRequests() {
         return service.getAllRequests();
     }
 
-    // Get adoption request by ID
     @GetMapping("/{id}")
-    public ResponseEntity<AdoptionRequest> getRequestById(@PathVariable int id) {
+    public AdoptionRequest getRequestById(@PathVariable String id) {
         return service.getRequestById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("Request not found: " + id));
     }
 
-    // Create new adoption request
     @PostMapping
     public AdoptionRequest createRequest(@RequestBody AdoptionRequest request) {
-        // request JSON can now include fullname and contact_no
         return service.createRequest(request);
     }
 
-    // Update adoption request
     @PutMapping("/{id}")
-    public AdoptionRequest updateRequest(@PathVariable int id, @RequestBody AdoptionRequest request) {
-        // request JSON can now include fullname and contact_no
+    public AdoptionRequest updateRequest(
+            @PathVariable String id,
+            @RequestBody AdoptionRequest request) {
         return service.updateRequest(id, request);
     }
 
-    // Delete adoption request
     @DeleteMapping("/{id}")
-    public String deleteRequest(@PathVariable int id) {
-        AdoptionRequest request = service.getRequestById(id)
-                .orElseThrow(() -> new RuntimeException("Adoption Request ID not found: " + id));
-
+    public String deleteRequest(@PathVariable String id) {
         service.deleteRequest(id);
         return "Adoption Request Deleted Successfully";
     }
 
-    // Get adoption requests by shelter ID
     @GetMapping("/shelter/{shelterId}")
-    public List<AdoptionRequest> getRequestsByShelterId(@PathVariable int shelterId) {
+    public List<AdoptionRequest> getRequestsByShelterId(@PathVariable String shelterId) {
         return service.getRequestsByShelterId(shelterId);
+    }
+    @PutMapping("/{id}/status")
+    public AdoptionRequest updateStatus(
+            @PathVariable String id,
+            @RequestBody java.util.Map<String, String> payload) {
+        String newStatus = payload.get("status");
+        return service.updateStatus(id, newStatus); // You will need to add this method to your Service
     }
 }
