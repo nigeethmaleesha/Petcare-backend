@@ -17,7 +17,6 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
 
     List<Donation> findByStatus(DonationStatus status);
 
-    // Optional: Add these useful queries
     @Query("SELECT COALESCE(SUM(d.amount), 0) FROM Donation d WHERE d.status = 'SUCCESS'")
     BigDecimal getTotalReceived();
 
@@ -28,8 +27,7 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
 
     List<Donation> findByStatusAndDonorNameContainingIgnoreCase(DonationStatus status, String donorName);
 
-    // FIXED QUERY - Removed "as" aliases from constructor parameters
-    // Use native query with interface projection
+    // Get shelter distribution with shelter_name from donation_requests
     @Query(value = """
         SELECT 
             dr.shelter_id as shelterId,
@@ -40,44 +38,40 @@ public interface DonationRepository extends JpaRepository<Donation, Integer> {
         FROM donations d
         JOIN donation_requests dr ON d.donation_request_id = dr.id
         WHERE d.status = 'SUCCESS'
-        
         GROUP BY dr.shelter_id, dr.shelter_name
         ORDER BY totalReceived DESC
         """, nativeQuery = true)
     List<ShelterDistributionProjection> getShelterDistribution();
 
+    // Get donations by shelter ID - UPDATED to use shelter_id from donations table
     @Query(value = """
     SELECT d.* FROM donations d
-    INNER JOIN donation_requests dr ON d.donation_request_id = dr.id
-    WHERE dr.shelter_id = :shelterId
+    WHERE d.shelter_id = :shelterId
     ORDER BY d.created_at DESC
     """, nativeQuery = true)
     List<Donation> findByShelterId(@Param("shelterId") Integer shelterId);
 
-    // Get total received by shelter ID
+    // Get total received by shelter ID - UPDATED
     @Query(value = """
     SELECT COALESCE(SUM(d.amount), 0) FROM donations d
-    INNER JOIN donation_requests dr ON d.donation_request_id = dr.id
-    WHERE d.status = 'SUCCESS' AND dr.shelter_id = :shelterId
+    WHERE d.status = 'SUCCESS' AND d.shelter_id = :shelterId
     """, nativeQuery = true)
     BigDecimal getTotalReceivedByShelter(@Param("shelterId") Integer shelterId);
 
-    // Get this month's total by shelter ID
+    // Get this month's total by shelter ID - UPDATED
     @Query(value = """
     SELECT COALESCE(SUM(d.amount), 0) FROM donations d
-    INNER JOIN donation_requests dr ON d.donation_request_id = dr.id
     WHERE d.status = 'SUCCESS' 
-    AND dr.shelter_id = :shelterId
+    AND d.shelter_id = :shelterId
     AND MONTH(d.created_at) = MONTH(CURRENT_DATE) 
     AND YEAR(d.created_at) = YEAR(CURRENT_DATE)
     """, nativeQuery = true)
     BigDecimal getThisMonthReceivedByShelter(@Param("shelterId") Integer shelterId);
 
-    // Get donations by shelter ID with filtering options
+    // Get donations by shelter ID with filtering options - UPDATED
     @Query(value = """
     SELECT d.* FROM donations d
-    INNER JOIN donation_requests dr ON d.donation_request_id = dr.id
-    WHERE dr.shelter_id = :shelterId
+    WHERE d.shelter_id = :shelterId
     AND (:search IS NULL OR 
          d.donor_name LIKE CONCAT('%', :search, '%') OR
          d.donation_request_id LIKE CONCAT('%', :search, '%'))

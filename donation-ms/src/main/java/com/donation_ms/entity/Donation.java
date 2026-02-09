@@ -26,13 +26,13 @@ public class Donation {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DonationStatus status = DonationStatus.PENDING; // Uses the separate enum
+    private DonationStatus status = DonationStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "purpose")
-    private String purpose;
+    @Column(name = "shelter_id")
+    private Integer shelterId;
 
     // ===============================
     // Lifecycle Callbacks
@@ -45,8 +45,6 @@ public class Donation {
     // ===============================
     // Getters & Setters
     // ===============================
-
-
     public Integer getId() {
         return id;
     }
@@ -103,13 +101,11 @@ public class Donation {
         this.createdAt = createdAt;
     }
 
-    public String getPurpose() {
-        return purpose;
+    public Integer getShelterId() {
+        return shelterId;
     }
 
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
+    public void setShelterId(Integer shelterId) {
+        this.shelterId = shelterId;
     }
-
-
 }

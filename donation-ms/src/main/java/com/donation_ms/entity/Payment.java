@@ -39,10 +39,9 @@ public class Payment {
         createdAt = LocalDateTime.now();
     }
 
-    @Column(name = "donation_id")
-
     // Getters & Setters
     public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public Integer getDonationId() { return donationId; }
     public void setDonationId(Integer donationId) { this.donationId = donationId; }
@@ -67,4 +66,5 @@ public class Payment {
     public void setCurrency(String currency) { this.currency = currency; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

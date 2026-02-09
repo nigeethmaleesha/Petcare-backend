@@ -114,14 +114,13 @@ public class PaymentController {
         }
     }
 
-    // ADD THIS NEW ENDPOINT to handle successful payments
     @PostMapping("/payment-success")
     public ResponseEntity<Map<String, Object>> handlePaymentSuccess(@RequestBody Map<String, Object> data) {
         try {
             String paymentIntentId = data.get("paymentIntentId").toString();
-            Integer donationRequestId = Integer.parseInt(data.get("donationRequestId").toString()); // IMPORTANT
+            Integer donationRequestId = Integer.parseInt(data.get("donationRequestId").toString());
             BigDecimal amount = new BigDecimal(data.get("amount").toString());
-            String purpose = data.get("purpose").toString();
+            String purpose = data.containsKey("purpose") ? data.get("purpose").toString() : "Donation";
             String donorName = data.containsKey("donorName") ?
                     data.get("donorName").toString() : "Anonymous Donor";
             String donorEmail = data.containsKey("donorEmail") ?
@@ -136,9 +135,9 @@ public class PaymentController {
             // 1. Update payment status in payments table
             paymentService.updatePaymentStatus(paymentIntentId, "succeeded");
 
-            // 2. Save to DONATIONS table using DonationService
+            // 2. Save to DONATIONS table
             Donation savedDonation = donationService.saveDonationFromPayment(
-                    donationRequestId, // Pass the actual request ID
+                    donationRequestId,
                     amount,
                     purpose,
                     donorName,
@@ -146,8 +145,10 @@ public class PaymentController {
                     paymentIntentId
             );
 
+            // 3. Update donation request current amount
+            donationService.updateDonationRequestAmount(donationRequestId, amount);
+
             System.out.println("💾 Donation saved with ID: " + savedDonation.getId());
-            System.out.println("  - Linked to Request ID: " + savedDonation.getDonationRequestId());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

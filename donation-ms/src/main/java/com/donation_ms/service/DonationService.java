@@ -1,33 +1,31 @@
 package com.donation_ms.service;
 
-
 import com.donation_ms.dto.ShelterDistributionDTO;
 import com.donation_ms.dto.ShelterDistributionProjection;
 import com.donation_ms.entity.Donation;
+import com.donation_ms.entity.DonationRequest;
 import com.donation_ms.entity.DonationStatus;
 import com.donation_ms.repository.DonationRepository;
+import com.donation_ms.repository.DonationRequestRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class DonationService {
 
     private final DonationRepository donationRepository;
+    private final DonationRequestRepository donationRequestRepository;
 
-
-    public DonationService(DonationRepository donationRepository) {
+    public DonationService(DonationRepository donationRepository,
+                           DonationRequestRepository donationRequestRepository) {
         this.donationRepository = donationRepository;
-
+        this.donationRequestRepository = donationRequestRepository;
     }
 
     @Transactional
@@ -87,48 +85,48 @@ public class DonationService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-
-
-    // ADD THIS NEW METHOD to save donation from payment
     @Transactional
     public Donation saveDonationFromPayment(Integer donationRequestId, BigDecimal amount,
                                             String purpose, String donorName, String donorEmail,
                                             String transactionId) {
-        Donation donation = new Donation();
+        // Get the donation request to get shelter information
+        DonationRequest donationRequest = donationRequestRepository.findById(donationRequestId)
+                .orElseThrow(() -> new RuntimeException("Donation request not found with id: " + donationRequestId));
 
-        // Use the actual donation request ID passed from frontend
+        Donation donation = new Donation();
         donation.setDonationRequestId(donationRequestId);
+        donation.setShelterId(donationRequest.getShelterId());
         donation.setDonorName(donorName != null ? donorName : "Anonymous Donor");
         donation.setDonorEmail(donorEmail);
         donation.setAmount(amount);
-        donation.setPurpose(purpose);
-        donation.setStatus(DonationStatus.SUCCESS); // Mark as SUCCESS immediately
+        donation.setStatus(DonationStatus.SUCCESS);
 
         System.out.println("💾 Saving donation to donations table:");
         System.out.println("  - Donation Request ID: " + donationRequestId);
+        System.out.println("  - Shelter ID: " + donationRequest.getShelterId());
         System.out.println("  - Amount: $" + amount);
-        System.out.println("  - Purpose: " + purpose);
         System.out.println("  - Donor: " + donation.getDonorName());
         System.out.println("  - Transaction ID: " + transactionId);
 
         return donationRepository.save(donation);
     }
 
-    // Keep the old method for backward compatibility (or remove it)
     @Transactional
-    public Donation saveDonationFromPayment(String transactionId, BigDecimal amount,
-                                            String purpose, String donorName, String donorEmail) {
-        // This is the OLD method - kept for backward compatibility
-        return saveDonationFromPayment(
-                generateDonationRequestId(transactionId), // Use generated ID
-                amount, purpose, donorName, donorEmail, transactionId
-        );
+    public void updateDonationRequestAmount(Integer donationRequestId, BigDecimal amount) {
+        DonationRequest donationRequest = donationRequestRepository.findById(donationRequestId)
+                .orElseThrow(() -> new RuntimeException("Donation request not found"));
+
+        BigDecimal newCurrentAmount = donationRequest.getCurrentAmount().add(amount);
+        donationRequest.setCurrentAmount(newCurrentAmount);
+
+        // Check if target is reached
+        if (newCurrentAmount.compareTo(donationRequest.getTargetAmount()) >= 0) {
+            donationRequest.setStatus(com.donation_ms.entity.DonationRequestStatus.COMPLETED);
+        }
+
+        donationRequestRepository.save(donationRequest);
     }
 
-    private Integer generateDonationRequestId(String transactionId) {
-        // Fallback method - only use if no request ID provided
-        return Math.abs(transactionId.hashCode()) % 10000;
-    }
     public List<ShelterDistributionDTO> getShelterDistribution() {
         List<ShelterDistributionProjection> projections = donationRepository.getShelterDistribution();
 
@@ -148,8 +146,7 @@ public class DonationService {
                 .collect(Collectors.toList());
     }
 
-    //new
-    // Add these methods to your existing DonationService.java
+    // Add these missing methods:
 
     public List<Donation> getDonationsByShelter(Integer shelterId) {
         return donationRepository.findByShelterId(shelterId);
@@ -167,25 +164,12 @@ public class DonationService {
         return donationRepository.getThisMonthReceivedByShelter(shelterId);
     }
 
-    // Get shelter distribution for a specific shelter only
     public ShelterDistributionDTO getShelterDistributionById(Integer shelterId) {
-        List<ShelterDistributionProjection> projections = donationRepository.getShelterDistribution();
+        List<ShelterDistributionDTO> allDistributions = getShelterDistribution();
 
-        return projections.stream()
-                .filter(projection -> projection.getShelterId().equals(shelterId))
+        return allDistributions.stream()
+                .filter(distribution -> distribution.getShelterId().equals(shelterId))
                 .findFirst()
-                .map(projection -> {
-                    ShelterDistributionDTO dto = new ShelterDistributionDTO();
-                    dto.setShelterId(projection.getShelterId());
-                    dto.setShelterName(projection.getShelterName());
-                    dto.setTotalReceived(projection.getTotalReceived());
-                    dto.setLastTransaction(projection.getLastTransaction());
-
-                    Long campaignCount = projection.getCampaignCount();
-                    dto.setCampaignCount(campaignCount != null ? campaignCount.intValue() : 0);
-
-                    return dto;
-                })
                 .orElseGet(() -> {
                     // Return empty DTO if shelter not found
                     ShelterDistributionDTO dto = new ShelterDistributionDTO();
@@ -196,5 +180,21 @@ public class DonationService {
                     dto.setCampaignCount(0);
                     return dto;
                 });
+    }
+
+    // Keep the old method for backward compatibility (or remove it)
+    @Transactional
+    public Donation saveDonationFromPayment(String transactionId, BigDecimal amount,
+                                            String purpose, String donorName, String donorEmail) {
+        // This is the OLD method - kept for backward compatibility
+        return saveDonationFromPayment(
+                generateDonationRequestId(transactionId),
+                amount, purpose, donorName, donorEmail, transactionId
+        );
+    }
+
+    private Integer generateDonationRequestId(String transactionId) {
+        // Fallback method - only use if no request ID provided
+        return Math.abs(transactionId.hashCode()) % 10000;
     }
 }

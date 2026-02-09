@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Table(name = "donation_requests")
 public class DonationRequest {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -17,11 +16,17 @@ public class DonationRequest {
     @Column(name = "shelter_id", nullable = false)
     private Integer shelterId;
 
+    @Column(name = "shelter_name", nullable = false, length = 100)
+    private String shelterName;
+
     @Column(nullable = false, length = 150)
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
 
     @Column(name = "target_amount", nullable = false)
     private BigDecimal targetAmount;
@@ -39,7 +44,7 @@ public class DonationRequest {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "created_at",nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -56,16 +61,13 @@ public class DonationRequest {
         updatedAt = LocalDateTime.now();
     }
 
-    @Column(name = "shelter_name", nullable = false, length = 100)
-    private String shelterName;
-
-    @Column(name = "image_url", length = 2000)  // ✅ NEW FIELD
-    private String imageUrl;
-
-    // getters and setters
-
+    // Getters and Setters
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getShelterId() {
@@ -76,6 +78,14 @@ public class DonationRequest {
         this.shelterId = shelterId;
     }
 
+    public String getShelterName() {
+        return shelterName;
+    }
+
+    public void setShelterName(String shelterName) {
+        this.shelterName = shelterName;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -84,16 +94,20 @@ public class DonationRequest {
         this.title = title;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public BigDecimal getTargetAmount() {
@@ -150,21 +164,5 @@ public class DonationRequest {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public String getShelterName() {
-        return shelterName;
-    }
-
-    public void setShelterName(String shelterName) {
-        this.shelterName = shelterName;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 }
