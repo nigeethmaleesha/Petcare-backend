@@ -1,92 +1,80 @@
 package com.Adoption_ms.services;
 
-import com.Adoption_ms.data.Adoption;
-import com.Adoption_ms.data.AdoptionRepository;
 import com.Adoption_ms.data.AdoptionRequest;
 import com.Adoption_ms.data.AdoptionRequestRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AdoptionRequestService {
+public class AdoptionRequestService implements AdoptionRerService {
 
-    @Autowired
-    private AdoptionRequestRepository requestRepository;
+    private final AdoptionRequestRepository repository;
 
-    @Autowired
-    private AdoptionRepository adoptionRepository;
-
-    // Get all adoption requests
-    public List<AdoptionRequest> getAllRequests() {
-        return requestRepository.findAll();
+    public AdoptionRequestService(AdoptionRequestRepository repository) {
+        this.repository = repository;
     }
 
-    // Get adoption request by ID
-    public Optional<AdoptionRequest> getRequestById(int id) {
-        return requestRepository.findById(id);
-    }
+    private synchronized String generateNextId() {
+        List<String> ids = repository.findLastId();
 
-    // Create new adoption request
-    public AdoptionRequest createRequest(AdoptionRequest request) {
-        // Only fetch adoption if adoption_id exists in DB
-        if (request.getAdoption_id() > 0) {
-            Optional<Adoption> adoptionOpt = adoptionRepository.findById(request.getAdoption_id());
-            if (adoptionOpt.isPresent()) {
-                Adoption adoption = adoptionOpt.get();
-                request.setPet_name(adoption.getPet_name());
-                request.setShelter_id(adoption.getShelterId());
-            } else {
-                throw new RuntimeException("Adoption not found with id " + request.getAdoption_id());
-            }
+        if (ids.isEmpty() || !ids.get(0).startsWith("REQ-")) {
+            return "REQ-001";
         }
 
-
-        if (request.getFullname() == null) request.setFullname("");
-        if (request.getContact_no() == null) request.setContact_no("");
-
-        return requestRepository.save(request);
+        int lastNum = Integer.parseInt(ids.get(0).split("-")[1]);
+        return String.format("REQ-%03d", lastNum + 1);
     }
 
-
-    // Update adoption request
-    public AdoptionRequest updateRequest(int id, AdoptionRequest updatedRequest) {
-        return requestRepository.findById(id).map(request -> {
-            // Update standard fields
-            request.setType_of_home(updatedRequest.getType_of_home());
-            request.setFenced_yard(updatedRequest.getFenced_yard());
-            request.setActivity_level(updatedRequest.getActivity_level());
-            request.setHours_alone_per_day(updatedRequest.getHours_alone_per_day());
-            request.setStatus(updatedRequest.getStatus());
-
-            // Update fullname and contact_no
-            request.setFullname(updatedRequest.getFullname());
-            request.setContact_no(updatedRequest.getContact_no());
-
-            // Optional: Update adoption_id (updates pet_name and shelter_id)
-            if (updatedRequest.getAdoption_id() > 0) {
-                request.setAdoption_id(updatedRequest.getAdoption_id());
-                Optional<Adoption> adoptionOpt = adoptionRepository.findById(updatedRequest.getAdoption_id());
-                if (adoptionOpt.isPresent()) {
-                    Adoption adoption = adoptionOpt.get();
-                    request.setPet_name(adoption.getPet_name());
-                    request.setShelter_id(adoption.getShelterId());
-                }
-            }
-
-            return requestRepository.save(request);
-        }).orElseThrow(() -> new RuntimeException("Request not found with id " + id));
+    @Override
+    public AdoptionRequest createRequest(AdoptionRequest request) {
+        if (request.getRequest_id() == null || request.getRequest_id().isEmpty()) {
+            request.setRequest_id(generateNextId());
+        }
+        return repository.save(request);
     }
 
-    // Delete adoption request
-    public void deleteRequest(int id) {
-        requestRepository.deleteById(id);
+    @Override
+    public List<AdoptionRequest> getAllRequests() {
+        return repository.findAll();
     }
 
-    // Get adoption requests by shelter ID
-    public List<AdoptionRequest> getRequestsByShelterId(int shelterId) {
-        return requestRepository.findByShelterId(shelterId);
+    @Override
+    public Optional<AdoptionRequest> getRequestById(String id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public AdoptionRequest updateRequest(String id, AdoptionRequest updated) {
+
+        AdoptionRequest existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found: " + id));
+
+        existing.setStatus(updated.getStatus());
+        existing.setType_of_home(updated.getType_of_home());
+        existing.setFenced_yard(updated.getFenced_yard());
+        existing.setActivity_level(updated.getActivity_level());
+        existing.setHours_alone_per_day(updated.getHours_alone_per_day());
+        existing.setFullname(updated.getFullname());
+        existing.setContact_no(updated.getContact_no());
+
+        return repository.save(existing);
+    }
+
+    @Override
+    public void deleteRequest(String id) {
+        repository.deleteById(id);
+    }
+
+    @Override
+    public List<AdoptionRequest> getRequestsByShelterId(String shelterId) {
+        return repository.findByShelterId(shelterId);
+    }
+    public AdoptionRequest updateStatus(String id, String status) {
+        AdoptionRequest request = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        request.setStatus(status);
+        return repository.save(request);
     }
 }
