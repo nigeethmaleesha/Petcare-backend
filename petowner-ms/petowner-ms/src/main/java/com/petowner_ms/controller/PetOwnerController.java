@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -91,6 +92,19 @@ public class PetOwnerController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch pet owner"));
+        }
+
+
+    }
+    // Get all pet owners (for admin)
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllPetOwners() {
+        try {
+            List<PetOwner> allOwners = petOwnerService.getAllPetOwners();
+            return ResponseEntity.ok(allOwners);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch pet owners"));
         }
     }
 }

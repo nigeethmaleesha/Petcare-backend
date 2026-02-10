@@ -121,4 +121,7 @@ public class PetService {
         public int getOverdueVaccinations() { return overdueVaccinations; }
         public void setOverdueVaccinations(int overdueVaccinations) { this.overdueVaccinations = overdueVaccinations; }
     }
+    public List<Pet> getAllPets() {
+        return petRepository.findAll();
+    }
 }

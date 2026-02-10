@@ -121,4 +121,16 @@ public class PetController {
                     .body(Map.of("error", "Failed to fetch pet statistics: " + e.getMessage()));
         }
     }
+
+    // Get all pets (for admin)
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllPets() {
+        try {
+            List<Pet> allPets = petService.getAllPets();
+            return ResponseEntity.ok(allPets);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch all pets"));
+        }
+    }
 }

@@ -6,6 +6,7 @@ import com.petowner_ms.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,4 +41,9 @@ public class PetOwnerService {
     public Optional<PetOwner> getPetOwnerById(int id) {
         return petOwnerRepository.findById(id);
     }
+
+    public List<PetOwner> getAllPetOwners() {
+        return petOwnerRepository.findAll();
+    }
+    
 }
